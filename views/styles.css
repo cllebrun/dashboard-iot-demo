@@ -1,3 +1,32 @@
+body, html {
+    height: 100%;
+}
 .helloInput {
+  width: 500px;
+}
+.page{
+	background-color: white;
+	height: 100%;
+}
+.circle{
+	background: #009999;
+  border-radius: 200px;
+  color: white;
+  height: 200px;
+  font-weight: bold;
   width: 200px;
+  padding-bottom: 5px;
+  margin-right: 5px;
+
+}
+.circle-title{
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 25px;
+}
+.circle-accel{
+  text-align: center;
+  vertical-align: middle;
+  font-size: 60px;
+  padding-top: 25px;
 }

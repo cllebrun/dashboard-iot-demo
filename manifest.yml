@@ -6,4 +6,4 @@ applications:
    - iot-phone-iotf-service
    random-route: true
    memory: 128M
-   command: node app.js
+   command: node server.js

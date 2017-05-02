@@ -17,7 +17,7 @@ var mydb;
 * 	"name": "Bob"
 * }
 */
-app.post("/api/visitors", function (request, response) {
+/*app.post("/api/visitors", function (request, response) {
   var userName = request.body.name;
   if(!mydb) {
     console.log("No database.");
@@ -31,7 +31,7 @@ app.post("/api/visitors", function (request, response) {
     }
     response.send("Hello " + userName + "! I added you to the database.");
   });
-});
+});*/
 
 /**
  * Endpoint to get a JSON array of all the visitors in the database
@@ -44,7 +44,7 @@ app.post("/api/visitors", function (request, response) {
  * [ "Bob", "Jane" ]
  * @return An array of all the visitor names
  */
-app.get("/api/visitors", function (request, response) {
+app.get("/devices", function (request, response) {
   var names = [];
   if(!mydb) {
     response.json(names);
@@ -54,8 +54,12 @@ app.get("/api/visitors", function (request, response) {
   mydb.list({ include_docs: true }, function(err, body) {
     if (!err) {
       body.rows.forEach(function(row) {
-        if(row.doc.name)
-          names.push(row.doc.name);
+        if(row.doc._id){
+          names.push(row.doc._id);
+        }else{
+          console.log("_id does not exist");
+        }
+          
       });
       response.json(names);
     }
@@ -82,7 +86,7 @@ if (appEnv.services['cloudantNoSQLDB']) {
   var cloudant = Cloudant(appEnv.services['cloudantNoSQLDB'][0].credentials);
 
   //database name
-  var dbName = 'mydb';
+  var dbName = 'device_credentials';
 
   // Create a new "mydb" database.
   cloudant.db.create(dbName, function(err, data) {
@@ -92,6 +96,25 @@ if (appEnv.services['cloudantNoSQLDB']) {
 
   // Specify the database we are going to use (mydb)...
   mydb = cloudant.db.use(dbName);
+}
+if (appEnv.services['iotf-service']) {
+  //init client
+  var Client = require("ibmiotf");
+  var appClientConfig = {
+    "org" : appEnv.services['iotf-service'][0].credentials.org,
+    "id" : appEnv.services['iotf-service'][0].credentials.idApp,
+    "auth-key" : appEnv.services['iotf-service'][0].credentials.apiKey,
+    "auth-token" : appEnv.services['iotf-service'][0].credentials.token
+  }
+  console.log(appClientConfig);
+  var appClient = new Client.IotfApplication(appClientConfig);
+  appClient.connect();
+
+  appClient.on("connect", function () {
+
+    console.log("connected to watson IoT");
+  });
+
 }
 
 //serve static file (index.html, images, css)
