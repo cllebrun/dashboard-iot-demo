@@ -1,4 +1,5 @@
 var express = require("express");
+var path = require('path');
 var app = express();
 var cfenv = require("cfenv");
 var bodyParser = require('body-parser')
@@ -9,65 +10,21 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+
 var mydb;
 
-/* Endpoint to greet and add a new visitor to database.
-* Send a POST request to localhost:3000/api/visitors with body
-* {
-* 	"name": "Bob"
-* }
-*/
-/*app.post("/api/visitors", function (request, response) {
-  var userName = request.body.name;
-  if(!mydb) {
-    console.log("No database.");
-    response.send("Hello " + userName + "!");
-    return;
-  }
-  // insert the username as a document
-  mydb.insert({ "name" : userName }, function(err, body, header) {
-    if (err) {
-      return console.log('[mydb.insert] ', err.message);
-    }
-    response.send("Hello " + userName + "! I added you to the database.");
-  });
-});*/
+var util = require("./util.js");
+app.get('/organization/getdevices', function(req, res) {
 
-/**
- * Endpoint to get a JSON array of all the visitors in the database
- * REST API example:
- * <code>
- * GET http://localhost:3000/api/visitors
- * </code>
- *
- * Response:
- * [ "Bob", "Jane" ]
- * @return An array of all the visitor names
- */
-app.get("/devices", function (request, response) {
-  var names = [];
-  if(!mydb) {
-    response.json(names);
-    return;
-  }
+  var orgId = "imsxbu";
+  console.log("Fetching the devices for orgId "+orgId); 
 
-  mydb.list({ include_docs: true }, function(err, body) {
-    if (!err) {
-      body.rows.forEach(function(row) {
-        if(row.doc._id){
-          names.push(row.doc._id);
-        }else{
-          console.log("_id does not exist");
-        }
-          
-      });
-      response.json(names);
-    }
-  });
+  console.log("Calling get");
+  util.getDevices("", "", res);
+  
 });
 
-
-// load local VCAP configuration  and service credentials
+//local VCAP configuration  and service credentials
 var vcapLocal;
 try {
   vcapLocal = require('./vcap-local.json');
@@ -97,28 +54,9 @@ if (appEnv.services['cloudantNoSQLDB']) {
   // Specify the database we are going to use (mydb)...
   mydb = cloudant.db.use(dbName);
 }
-if (appEnv.services['iotf-service']) {
-  //init client
-  var Client = require("ibmiotf");
-  var appClientConfig = {
-    "org" : appEnv.services['iotf-service'][0].credentials.org,
-    "id" : appEnv.services['iotf-service'][0].credentials.idApp,
-    "auth-key" : appEnv.services['iotf-service'][0].credentials.apiKey,
-    "auth-token" : appEnv.services['iotf-service'][0].credentials.token
-  }
-  console.log(appClientConfig);
-  var appClient = new Client.IotfApplication(appClientConfig);
-  appClient.connect();
 
-  appClient.on("connect", function () {
 
-    console.log("connected to watson IoT");
-  });
-
-}
-
-//serve static file (index.html, images, css)
-app.use(express.static(__dirname + '/views'));
+app.use(express.static(__dirname ));
 
 
 
